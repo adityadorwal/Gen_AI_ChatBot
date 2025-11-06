@@ -15,9 +15,9 @@ function App() {
   const chatBoxRef = useRef(null);
   const fileInputRef = useRef(null);
   const lastUserMessageRef = useRef(null);
-  const inputRef = useRef(null); // 🔥 NEW: Reference to input field
+  const inputRef = useRef(null);
 
-  // Load chat history from localStorage on mount
+
   useEffect(() => {
     const savedMessages = localStorage.getItem("chatHistory");
     if (savedMessages) {
@@ -30,14 +30,14 @@ function App() {
     }
   }, []);
 
-  // Save chat history to localStorage whenever it changes
+ 
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem("chatHistory", JSON.stringify(messages));
     }
   }, [messages]);
 
-  // 🔥 SMART SCROLL: Only scroll to show last user message + some space for bot reply
+  
   const scrollToRecentMessage = () => {
     if (lastUserMessageRef.current && chatBoxRef.current) {
       const messageElement = lastUserMessageRef.current;
@@ -53,14 +53,14 @@ function App() {
     }
   };
 
-  // Trigger smart scroll when loading starts
+  
   useEffect(() => {
     if (loading) {
       setTimeout(scrollToRecentMessage, 100);
     }
   }, [loading]);
 
-  // Send text message
+ 
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -94,7 +94,7 @@ function App() {
         ...prev,
         {
           sender: "bot",
-          text: "⚠️ Error: " + (error.response?.data?.detail || "Could not connect to server"),
+          text: " Error: " + (error.response?.data?.detail || "Could not connect to server"),
           timestamp: new Date().toISOString()
         },
       ]);
@@ -108,7 +108,7 @@ function App() {
     }
   };
 
-  // 🔥 Handle PDF upload with AUTO-SUMMARY
+  
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -153,7 +153,7 @@ function App() {
         ...prev,
         {
           sender: "bot",
-          text: "❌ Upload failed: " + (error.response?.data?.detail || "Please try again"),
+          text: " Upload failed: " + (error.response?.data?.detail || "Please try again"),
           timestamp: new Date().toISOString()
         },
       ]);
@@ -171,7 +171,7 @@ function App() {
     }
   };
 
-  // Clear PDF
+  
   const handleClearPdf = async () => {
     try {
       await axios.delete(`${API_BASE_URL}/clear_pdf`);
@@ -191,7 +191,6 @@ function App() {
     }
   };
 
-  // Reset entire conversation
   const handleReset = async () => {
     if (!window.confirm("Are you sure you want to reset the conversation? This will clear all messages and PDF data.")) {
       return;
@@ -217,13 +216,12 @@ function App() {
     }
   };
 
-  // Format timestamp
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Get last user message index for ref
+  
   const lastUserMessageIndex = [...messages]
     .map((msg, idx) => msg.sender === "user" ? idx : -1)
     .filter(idx => idx !== -1)
