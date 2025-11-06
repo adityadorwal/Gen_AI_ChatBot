@@ -5,13 +5,11 @@ import google.generativeai as genai
 import os
 from typing import List, Dict
 
-# 🔹 Setup Gemini
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
 app = FastAPI()
 
-# 🔹 Enable CORS for frontend access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,14 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🔹 Global state
-chat_sessions = {}  # Store chat history per session
-pdf_contents = {}   # Store PDF content per session
-
+chat_sessions = {} 
+pdf_contents = {}  
 
 @app.get("/")
 def home():
-    return {"message": "✅ Gen_AI Chatbot Backend is running!", "status": "healthy"}
+    return {"message": "Gen_AI Chatbot Backend is running!", "status": "healthy"}
 
 
 @app.post("/upload_pdf")
@@ -48,18 +44,16 @@ async def upload_pdf(file: UploadFile = File(...)):
         if not text.strip():
             raise HTTPException(status_code=400, detail="PDF appears to be empty or unreadable")
 
-        # Store PDF content
         session_id = "default"
         pdf_contents[session_id] = text.strip()
 
-        # 🔥 AUTO-GENERATE SUMMARY using Gemini
         summary_prompt = f"""Analyze this document and provide a concise summary covering:
 1. Main topic/subject
 2. Key points (3-5 bullet points)
 3. Document type/purpose
 
 Document content:
-{text[:4000]}
+{text[:6000]}
 
 Keep the summary clear and under 150 words."""
 
@@ -68,12 +62,12 @@ Keep the summary clear and under 150 words."""
             summary = summary_response.text.strip()
         except Exception as e:
             print(f"Summary generation error: {e}")
-            summary = "✅ PDF uploaded successfully! The document has been processed and is ready for questions."
+            summary = "PDF uploaded successfully! The document has been processed and is ready for questions."
 
         return {
             "message": "success",
             "pages": len(pdf_reader.pages),
-            "summary": summary,  # 🔥 Return AI-generated summary
+            "summary": summary, 
             "characters": len(text)
         }
     
@@ -88,32 +82,26 @@ async def chat(request: Request):
     try:
         data = await request.json()
         user_prompt = data.get("prompt", "").strip()
-        use_pdf = data.get("use_pdf", True)  # Toggle PDF context
+        use_pdf = data.get("use_pdf", True) 
         session_id = "default"
 
         if not user_prompt:
             raise HTTPException(status_code=400, detail="Prompt cannot be empty")
 
-        # Initialize session if doesn't exist
         if session_id not in chat_sessions:
             chat_sessions[session_id] = []
 
-        # Add user message to history
         chat_sessions[session_id].append({
             "role": "user", 
             "content": user_prompt
         })
 
-        # Build context for Gemini
         context_parts = []
         
-        # Add PDF context if available and enabled
         if use_pdf and session_id in pdf_contents:
             pdf_text = pdf_contents[session_id]
-            # Limit PDF context to ~3000 characters to leave room for conversation
             context_parts.append(f"=== DOCUMENT CONTEXT ===\n{pdf_text[:3000]}\n=== END DOCUMENT ===\n")
         
-        # Add recent conversation history (last 5 exchanges = 10 messages)
         recent_history = chat_sessions[session_id][-10:]
         for msg in recent_history:
             role = "User" if msg["role"] == "user" else "Assistant"
@@ -121,11 +109,9 @@ async def chat(request: Request):
         
         full_context = "\n".join(context_parts)
 
-        # Generate response from Gemini
         response = model.generate_content(full_context)
         bot_reply = response.text.strip()
 
-        # Add bot response to history
         chat_sessions[session_id].append({
             "role": "assistant",
             "content": bot_reply
@@ -160,11 +146,9 @@ async def reset_conversation():
     """Reset chat history and PDF content"""
     session_id = "default"
     
-    # Clear chat history
     if session_id in chat_sessions:
         del chat_sessions[session_id]
     
-    # Clear PDF content
     if session_id in pdf_contents:
         del pdf_contents[session_id]
     
@@ -187,7 +171,6 @@ async def clear_pdf():
     return {"message": "ℹ️ No PDF to clear"}
 
 
-# Health check endpoint
 @app.get("/health")
 def health_check():
     return {
