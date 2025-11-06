@@ -6,7 +6,7 @@ import os
 from typing import List, Dict
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-model = genai.GenerativeModel("gemini-2.0-flash-exp")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 app = FastAPI()
 
