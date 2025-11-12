@@ -21,7 +21,7 @@ A full-stack AI-powered chatbot application that enables intelligent conversatio
 ## ✨ Key Features
 
 ### 🎯 Core Functionality
-- **💬 AI Chat Interface**: Real-time conversations with Google Gemini 2.0 Flash model
+- **💬 AI Chat Interface**: Real-time conversations with Google Gemini 2.0 model
 - **📄 PDF Upload & Analysis**: Upload documents and get AI-powered insights instantly
 - **🔍 Context-Aware Q&A**: Ask questions about uploaded PDFs with intelligent, contextual responses
 - **📊 Auto-Summary Generation**: Automatic document summarization upon upload
